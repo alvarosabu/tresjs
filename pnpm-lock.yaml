@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@alvarosabu/prettier-config': ^1.1.0
   '@semantic-release/changelog': ^6.0.1
+  '@types/three': ^0.136.1
   '@vitejs/plugin-vue': ^2.0.0
   pathe: ^0.2.0
   rollup-plugin-copy: ^3.4.0
@@ -23,6 +24,7 @@ dependencies:
 devDependencies:
   '@alvarosabu/prettier-config': 1.1.0
   '@semantic-release/changelog': 6.0.1_semantic-release@19.0.2
+  '@types/three': 0.136.1
   '@vitejs/plugin-vue': 2.1.0_vite@2.7.13+vue@3.2.29
   pathe: 0.2.0
   rollup-plugin-copy: 3.4.0
@@ -377,6 +379,10 @@ packages:
 
   /@types/retry/0.12.1:
     resolution: {integrity: sha512-xoDlM2S4ortawSWORYqsdU+2rxdh4LRW9ytc3zmT37RIKQh6IHyKwwtKhKis9ah8ol07DCkZxPt8BBvPjC6v4g==}
+    dev: true
+
+  /@types/three/0.136.1:
+    resolution: {integrity: sha512-gzTw6RR4dU8sGf+RpLBWWKHRVIJ4gwKVQPk+IFCgha04Efg/itXYUalX6iBcYeSmaDu0qE5M7uTq0XLQpU4FAg==}
     dev: true
 
   /@types/throttle-debounce/2.1.0:

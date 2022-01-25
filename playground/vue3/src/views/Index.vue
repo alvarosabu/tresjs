@@ -3,7 +3,7 @@
   <div class="page">Home</div>
 </template>
 
-<style lang="scss">
+<style>
 .page {
 }
 </style>
