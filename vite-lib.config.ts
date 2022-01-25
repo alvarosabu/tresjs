@@ -32,11 +32,11 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'tresjs',
-      fileName: 'tresjs',
+      fileName: 'tres',
       formats: ['es', 'cjs', 'umd', 'iife'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ['vue', 'pathe'],
       output: {
         banner,
         footer,
