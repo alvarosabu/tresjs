@@ -10,7 +10,6 @@ interface LoggerComposition {
 export function useLogger(): LoggerComposition {
   function logError(message: string) {
     console.error(`${logPrefix} ${message}`)
-    throw `${logPrefix} ${message}`
   }
 
   function logWarning(message: string) {

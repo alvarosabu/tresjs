@@ -8,6 +8,9 @@ export default defineConfig({
       '/@': resolve(__dirname, './src'),
     },
   },
-  plugins: [vue()]
+  test: {
+    globals: true,
+    environment: 'jsdom',
+  },
+  plugins: [vue()],
 })
-

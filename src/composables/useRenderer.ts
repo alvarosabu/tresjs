@@ -62,12 +62,24 @@ export function useRenderer(config: RendererConfig) {
   /**
    * create WebGLRenderer
    */
-  function createRenderer(canvas: HTMLCanvasElement): WebGLRenderer {
-    state.renderer = new WebGLRenderer({
+  function createRenderer(
+    canvas: HTMLCanvasElement,
+    context: any,
+  ): WebGLRenderer {
+    const setup = {
       canvas,
       antialias,
       alpha,
-    })
+    }
+    if (context) {
+      setup.context = context
+    }
+    try {
+      state.renderer = new WebGLRenderer(setup)
+    } catch (error) {
+      logError(error)
+      return
+    }
 
     if (shadows) {
       state.renderer.shadowMap.enabled = true
@@ -110,11 +122,19 @@ export function useRenderer(config: RendererConfig) {
    */
   function initOrbitControls() {
     if (!state.controls && state.renderer && state.camera) {
-      state.controls = new OrbitControls(
-        state.camera,
-        state.renderer.domElement,
+      try {
+        state.controls = new OrbitControls(
+          state.camera,
+          state.renderer.domElement,
+        )
+        state.controls.enableDamping = true
+      } catch (error) {
+        logError(error)
+      }
+    } else {
+      logError(
+        'Cannot initialize OrbitControls - Please check your WebGLRenderer and Camera',
       )
-      state.controls.enableDamping = true
     }
   }
 
@@ -195,6 +215,7 @@ export function useRenderer(config: RendererConfig) {
     initRenderer,
     render,
     updateRenderer,
+    initOrbitControls,
     updateOrbitControls,
     state,
   }
