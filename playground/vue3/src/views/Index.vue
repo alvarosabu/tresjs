@@ -1,6 +1,8 @@
 <script setup lang="ts"></script>
 <template>
-  <div class="page">Home</div>
+  <div class="page">
+    <Renderer />
+  </div>
 </template>
 
 <style>

@@ -4,6 +4,8 @@ export interface Plugin {
   install(app: App): void
 }
 
+const components = import.meta.globEager('./components/**/*.vue')
+
 export const tresjsSymbol: InjectionKey<Plugin> = Symbol('tresjs')
 
 export function useTres(): Plugin {
@@ -17,7 +19,21 @@ const TresJSPlugin = {
   install(app: App) {
     app.provide(tresjsSymbol, TresJSPlugin)
 
-    console.log('Hola tresjs!!!')
+    Object.entries(components).forEach(([path, definition]) => {
+      const componentName =
+        path
+          .split('/')
+          .pop()
+          ?.replace(/\.\w+$/, '') || ''
+
+      /*      const componentName = path.replace(/^\.\/components\//, '').replace(/\.vue$/, '')
+        const componentName = path || ''
+          .split('/')
+          .pop()
+          .replace(/\.\w+$/, '') */
+
+      app.component(componentName, definition.default)
+    })
     Object.defineProperty(app, '__VUE_DYNAMIC_FORMS_SYMBOL__', {
       get() {
         return tresjsSymbol

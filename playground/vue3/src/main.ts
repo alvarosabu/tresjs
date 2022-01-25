@@ -10,4 +10,6 @@ export const app = createApp(App)
 
 app.use(TresJSPlugin)
 app.use(router)
+
+console.log('app', app)
 app.mount('#app')
