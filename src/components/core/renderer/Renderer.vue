@@ -20,9 +20,14 @@ const renderer = ref(null)
 
 watch(renderer, initRenderer)
 
+const { createRenderer, state } = useRenderer({
+  resize: true,
+  orbitControls: true,
+})
+
 function initRenderer(canvas: HTMLCanvasElement) {
   if (canvas) {
-    const { createRenderer, render, state } = useRenderer({ canvas })
+    console.log('initRenderer')
     state.scene = new THREE.Scene()
     state.camera = new THREE.PerspectiveCamera(
       75,
@@ -30,15 +35,18 @@ function initRenderer(canvas: HTMLCanvasElement) {
       0.1,
       1000,
     )
+    state.camera.position.z = 5
+    state.scene.add(state.camera)
 
+    state.scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+    state.scene.add(new THREE.DirectionalLight(0xffffff, 0.5))
     state.scene.add(
       new THREE.Mesh(
-        new THREE.SphereGeometry(2, 32, 32),
-        new THREE.MeshStandardMaterial({ color: 'teal' }),
+        new THREE.SphereGeometry(1, 32, 32),
+        new THREE.MeshToonMaterial({ color: 'teal' }),
       ),
     )
-    createRenderer()
-    render()
+    createRenderer(canvas)
   }
 }
 </script>

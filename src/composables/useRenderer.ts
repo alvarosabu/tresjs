@@ -5,7 +5,7 @@ import {
   WebGLRenderer,
   WebGLRendererParameters,
 } from 'three'
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, watch, toRaw } from 'vue'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { useWindowSize } from '@vueuse/core'
 
@@ -42,41 +42,39 @@ const state = reactive<RootStore>({
   controls: null,
 })
 
-export function useRenderer(
-  config: RendererConfig = {
-    antialias: true,
-    alpha: false,
-    orbitControls: false,
-    resize: false,
-    width: 800,
-    height: 600,
-    shadows: false,
-  },
-) {
+export function useRenderer(config: RendererConfig) {
+  const {
+    antialias = true,
+    alpha = false,
+    orbitControls = false,
+    resize = false,
+    shadows = false,
+  } = config
+
   const { width, height } = useWindowSize()
   const aspectRatio = computed(() => width.value / height.value)
 
   watch(aspectRatio, updateRenderer)
+  watch(aspectRatio, updateCurrentCamera)
 
   const { logError } = useLogger()
 
   /**
    * create WebGLRenderer
    */
-  function createRenderer(): WebGLRenderer {
+  function createRenderer(canvas: HTMLCanvasElement): WebGLRenderer {
     state.renderer = new WebGLRenderer({
-      canvas: config.canvas,
-      antialias: config.antialias,
-      alpha: config.alpha,
+      canvas,
+      antialias,
+      alpha,
     })
 
-    if (config.shadows) {
+    if (shadows) {
       state.renderer.shadowMap.enabled = true
       state.renderer.shadowMap.type = PCFSoftShadowMap // TODO: add option to change this for other types
     }
 
     initRenderer()
-
     return state.renderer
   }
 
@@ -97,9 +95,14 @@ export function useRenderer(
       return
     }
 
-    if (config.orbitControls) {
+    if (orbitControls) {
       initOrbitControls()
     }
+
+    render()
+    loop()
+    updateRenderer()
+    updateCurrentCamera()
   }
 
   /**
@@ -111,6 +114,7 @@ export function useRenderer(
         state.camera,
         state.renderer.domElement,
       )
+      state.controls.enableDamping = true
     }
   }
 
@@ -137,12 +141,17 @@ export function useRenderer(
       )
       return
     }
-    if (config.resize) {
+    if (resize) {
       state.renderer.setSize(width.value, height.value)
       state.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     } else {
-      state.renderer.setSize(config.width || 800, config.height || 600)
+      state.renderer.setSize(800, 600)
     }
+  }
+
+  function updateCurrentCamera() {
+    state.camera.aspect = aspectRatio.value
+    state.camera.updateProjectionMatrix()
   }
 
   /**
@@ -168,7 +177,17 @@ export function useRenderer(
       )
       return
     }
-    state.renderer.render(state.scene, state.camera)
+    state.renderer.render(toRaw(state.scene), state.camera)
+  }
+
+  const loop = () => {
+    // Update renderer
+    if (orbitControls) {
+      updateOrbitControls()
+    }
+    render()
+
+    requestAnimationFrame(loop)
   }
 
   return {
