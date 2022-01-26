@@ -108,7 +108,18 @@ function initRenderer(canvas: HTMLCanvasElement) {
   }
 }
 
+/* beforeUnmount(() => {
+  if (state.renderer) {
+    state.renderer.dispose()
+    state.renderer.domElement.remove()
+  }
+}) */
+
 watch(renderer, initRenderer)
+
+function beforeUnmount(arg0: () => void) {
+  throw new Error('Function not implemented.')
+}
 </script>
 <template>
   <canvas ref="renderer"></canvas>

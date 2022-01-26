@@ -1,0 +1,4 @@
+{
+  "componentFolder": "src",
+  "testFiles": "**/*.e2e.ts*"
+}

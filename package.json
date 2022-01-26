@@ -45,7 +45,10 @@
     "coverage": "vitest run --coverage",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:serve": "vitepress serve docs"
+    "docs:serve": "vitepress serve docs",
+    "test:e2e": "cypress open",
+    "test:e2e:ci": "cypress run",
+    "test:components": "cypress open-ct"
   },
   "keywords": [
     "vue",
@@ -61,12 +64,15 @@
   "devDependencies": {
     "@alvarosabu/prettier-config": "^1.1.0",
     "@alvarosabu/utils": "^1.0.3",
+    "@cypress/vite-dev-server": "^2.2.2",
+    "@cypress/vue": "^3.1.0",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/git": "^10.0.1",
     "@types/three": "^0.136.1",
     "@vitejs/plugin-vue": "^2.0.0",
     "@vueuse/core": "^7.5.4",
     "canvas": "^2.9.0",
+    "cypress": "^9.3.1",
     "gl": "^5.0.0",
     "jsdom": "^19.0.0",
     "pathe": "^0.2.0",
