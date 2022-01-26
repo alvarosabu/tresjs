@@ -78,7 +78,6 @@
     "gl": "^5.0.0",
     "jsdom": "^19.0.0",
     "pathe": "^0.2.0",
-    "pinia": "^2.0.9",
     "rollup-plugin-copy": "^3.4.0",
     "semantic-release": "^19.0.2",
     "typescript": "^4.4.4",
