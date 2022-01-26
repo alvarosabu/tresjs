@@ -25,5 +25,4 @@ The renderer Component is the portal into [ThreeJS Renderer](https://threejs.org
 | :--------------- | :---------------------------------------------------------- | :------ | :------ |
 |  `orbitControls` | Defines whether the OrbitControls should be enabled or not. | Boolean | `false` |
 
-Orbit controls allow the camera to orbit around a target.
-To use this, as with all files in the /examples directory, you will have to include the file separately in your HTML. Check more [three-js-orbit-controls](https://threejs.org/docs/index.html?q=Orbit#examples/en/controls/OrbitControls)
+Orbit controls allow the camera to orbit around a target. Check more [three-js-orbit-controls](https://threejs.org/docs/index.html?q=Orbit#examples/en/controls/OrbitControls)

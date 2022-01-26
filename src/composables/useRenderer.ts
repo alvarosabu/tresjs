@@ -1,12 +1,12 @@
 import {
   Camera,
-  PCFSoftShadowMap,
   Scene,
   ShadowMapType,
+  Vector2,
   WebGLRenderer,
   WebGLRendererParameters,
 } from 'three'
-import { computed, reactive, watch, toRaw } from 'vue'
+import { computed, reactive, watch, toRaw, getCurrentInstance } from 'vue'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { isBoolean, useWindowSize } from '@vueuse/core'
 
@@ -60,6 +60,8 @@ export function useRenderer(config: RendererConfig) {
 
   const { logError } = useLogger()
 
+  const { emit } = getCurrentInstance()
+
   /**
    * create WebGLRenderer
    */
@@ -77,6 +79,7 @@ export function useRenderer(config: RendererConfig) {
     }
     try {
       state.renderer = new WebGLRenderer(setup)
+      emit('created', state.renderer)
     } catch (error) {
       logError(error as string)
       return null
@@ -164,7 +167,7 @@ export function useRenderer(config: RendererConfig) {
       )
       return
     }
-    console.log({ size })
+
     if (resize) {
       state.renderer.setSize(width.value, height.value)
       state.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -175,6 +178,11 @@ export function useRenderer(config: RendererConfig) {
         state.renderer.setSize(size.width, size.height)
       }
     }
+
+    emit('resize', {
+      width: state.renderer.domElement.clientWidth,
+      height: state.renderer.domElement.clientHeight,
+    })
   }
 
   function updateCurrentCamera() {
@@ -228,6 +236,7 @@ export function useRenderer(config: RendererConfig) {
     if (orbitControls) {
       updateOrbitControls()
     }
+    emit('updated')
     render()
 
     requestAnimationFrame(loop)

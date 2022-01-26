@@ -48,6 +48,8 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['init', 'created', 'resize', 'updated'])
+
 const renderer = ref(null)
 
 const { createRenderer, state } = useRenderer({
@@ -61,6 +63,7 @@ const { createRenderer, state } = useRenderer({
 
 function initRenderer(canvas: HTMLCanvasElement) {
   if (canvas) {
+    emit('init')
     state.scene = new THREE.Scene()
     state.camera = new THREE.PerspectiveCamera(
       75,
