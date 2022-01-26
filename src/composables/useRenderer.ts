@@ -24,7 +24,7 @@ export interface RendererConfig extends WebGLRendererParameters {
   orbitControls?: boolean | OrbitControls
   shadows?: boolean | ShadowMapType
   resize?: boolean | string
-  size?: number[]
+  size?: number[] | { width: number; height: number }
   context?: any
 }
 
@@ -49,6 +49,7 @@ export function useRenderer(config: RendererConfig) {
     orbitControls = false,
     resize = false,
     shadows = false,
+    size = [800, 600],
   } = config
 
   const { width, height } = useWindowSize()
@@ -163,16 +164,36 @@ export function useRenderer(config: RendererConfig) {
       )
       return
     }
+    console.log({ size })
     if (resize) {
       state.renderer.setSize(width.value, height.value)
       state.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     } else {
-      state.renderer.setSize(800, 600)
+      if (Array.isArray(size)) {
+        state.renderer.setSize(size[0], size[1])
+      } else {
+        state.renderer.setSize(size.width, size.height)
+      }
     }
   }
 
   function updateCurrentCamera() {
-    state.camera.aspect = aspectRatio.value
+    if (!state.camera) {
+      logError(
+        'No camera provided - Please add a <camera> element to your template or use the `useCamera`',
+      )
+      return false
+    }
+
+    if (resize) {
+      state.camera.aspect = aspectRatio.value
+    } else {
+      if (Array.isArray(size)) {
+        state.camera.aspect = size[0] / size[1]
+      } else {
+        state.camera.aspect = size.width / size.height
+      }
+    }
     state.camera.updateProjectionMatrix()
   }
 

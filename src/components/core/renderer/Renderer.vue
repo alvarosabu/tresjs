@@ -2,8 +2,9 @@
 import * as THREE from 'three'
 import { ShadowMapType } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { ref, watch, defineProps, PropType } from 'vue'
+import { ref, watch, PropType } from 'vue'
 import { useRenderer } from '/@/composables/useRenderer'
+import { SizeFlexibleParams } from '/@/types'
 
 const props = defineProps({
   alpha: {
@@ -32,8 +33,8 @@ const props = defineProps({
   },
   size: {
     // The size of the canvas.
-    type: Array as PropType<number[]>,
-    default: [800, 600],
+    type: [Array, Object] as PropType<SizeFlexibleParams>,
+    default: () => [800, 600],
   },
   shadows: {
     // Defines whether to render shadows or not. Is possible to pass the ShadowMapType.
@@ -50,14 +51,16 @@ const props = defineProps({
 const renderer = ref(null)
 
 const { createRenderer, state } = useRenderer({
+  alpha: props.alpha,
+  antialias: props.antialias,
   resize: props.resize,
   orbitControls: props.orbitControls,
   shadows: props.shadows,
+  size: props.size,
 })
 
 function initRenderer(canvas: HTMLCanvasElement) {
   if (canvas) {
-    console.log('initRenderer')
     state.scene = new THREE.Scene()
     state.camera = new THREE.PerspectiveCamera(
       75,
@@ -69,14 +72,14 @@ function initRenderer(canvas: HTMLCanvasElement) {
     state.scene.add(state.camera)
 
     state.scene.add(new THREE.AmbientLight(0xffffff, 0.5))
-    const sun = new THREE.DirectionalLight(0xffffff, 1)
+    const sun = new THREE.DirectionalLight(0xffffff, 0.8)
     sun.position.set(8, 8, 8)
     sun.castShadow = true
     state.scene.add(sun)
 
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(1, 32, 32),
-      new THREE.MeshToonMaterial({ color: 'teal' }),
+      new THREE.MeshToonMaterial({ color: '#EFAC35' }),
     )
     sphere.position.set(0, 5, 0)
     sphere.castShadow = true
