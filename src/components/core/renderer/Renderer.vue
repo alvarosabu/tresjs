@@ -48,7 +48,13 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['init', 'created', 'resize', 'updated'])
+const emit = defineEmits([
+  'init',
+  'created',
+  'resize',
+  'updated',
+  'controlsCreated',
+])
 
 const renderer = ref(null)
 

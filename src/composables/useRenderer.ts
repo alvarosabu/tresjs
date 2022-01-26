@@ -134,6 +134,7 @@ export function useRenderer(config: RendererConfig) {
           state.renderer.domElement,
         )
         state.controls.enableDamping = true
+        emit('controlsCreated', state.controls)
       } catch (error) {
         logError(error as string)
       }
