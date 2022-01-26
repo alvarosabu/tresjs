@@ -5,6 +5,9 @@ on:
       - main
       - release/*
       - feat/*
+      - feature/*
+      - bugfix/*
+      - fix/*
   pull_request:
 jobs:
   check:
