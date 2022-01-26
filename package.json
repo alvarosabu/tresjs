@@ -42,7 +42,7 @@
     "preview": "vite preview",
     "semantic-release": "semantic-release",
     "test": "vitest",
-    "test:ci": "vitest --ci -coverage && npm run test:components:ci",
+    "test:ci": "vitest --ci -coverage",
     "coverage": "vitest run --coverage",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
