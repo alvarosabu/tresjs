@@ -1,9 +1,11 @@
 name: CI
 on:
-  pull_request:
+  push:
     branches:
       - main
-      - next
+      - release/*
+      - feat/*
+  pull_request:
 jobs:
   check:
     name: Check stuff
