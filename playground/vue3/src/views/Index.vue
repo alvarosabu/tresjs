@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { PCFSoftShadowMap } from 'three'
+</script>
 <template>
   <div class="page">
-    <Renderer />
+    <Renderer resize orbit-controls :shadows="PCFSoftShadowMap" />
   </div>
 </template>
 

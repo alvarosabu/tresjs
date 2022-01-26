@@ -1,28 +1,58 @@
-<script lang="ts">
+<script lang="ts" setup>
 import * as THREE from 'three'
-import { defineComponent, h, watch } from 'vue'
+import { ShadowMapType } from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { ref, watch, defineProps, PropType } from 'vue'
+import { useRenderer } from '/@/composables/useRenderer'
 
-export default defineComponent({
-  name: 'Renderer',
-  render() {
-    return h('canvas', {
-      ref: 'renderer',
-    })
+const props = defineProps({
+  alpha: {
+    // Defines whether the canvas contains an alpha (transparency) buffer or not.
+    type: Boolean,
+    default: false,
+  },
+  antialias: {
+    // Defines whether to apply antialiasing or not.
+    type: Boolean,
+    default: false,
+  },
+  autoClear: {
+    // Defines whether the renderer should clear the canvas before rendering.
+    type: Boolean,
+    default: true,
+  },
+  resize: {
+    // Defines whether the renderer should be resized automatically.
+    /*     Resize canvas on window resize.
+    false : disabled
+    true : parent size
+    'window' : window size */
+    type: [Boolean, String] as PropType<boolean | string>,
+    default: false,
+  },
+  size: {
+    // The size of the canvas.
+    type: Array as PropType<number[]>,
+    default: [800, 600],
+  },
+  shadows: {
+    // Defines whether to render shadows or not. Is possible to pass the ShadowMapType.
+    type: [Boolean, Number] as PropType<boolean | ShadowMapType>,
+    default: false,
+  },
+  orbitControls: {
+    // Defines whether to use orbit controls or not.
+    type: [Boolean, Object] as PropType<boolean | OrbitControls>,
+    default: false,
   },
 })
-</script>
-
-<script lang="ts" setup>
-import { ref, onMounted } from 'vue'
-import { useRenderer } from '/@/composables/useRenderer'
 
 const renderer = ref(null)
 
-watch(renderer, initRenderer)
-
 const { createRenderer, state } = useRenderer({
-  resize: true,
-  orbitControls: true,
+  resize: props.resize,
+  orbitControls: props.orbitControls,
+  shadows: props.shadows,
 })
 
 function initRenderer(canvas: HTMLCanvasElement) {
@@ -35,18 +65,40 @@ function initRenderer(canvas: HTMLCanvasElement) {
       0.1,
       1000,
     )
-    state.camera.position.z = 5
+    state.camera.position.set(5, 5, 15)
     state.scene.add(state.camera)
 
     state.scene.add(new THREE.AmbientLight(0xffffff, 0.5))
-    state.scene.add(new THREE.DirectionalLight(0xffffff, 0.5))
-    state.scene.add(
-      new THREE.Mesh(
-        new THREE.SphereGeometry(1, 32, 32),
-        new THREE.MeshToonMaterial({ color: 'teal' }),
-      ),
+    const sun = new THREE.DirectionalLight(0xffffff, 1)
+    sun.position.set(8, 8, 8)
+    sun.castShadow = true
+    state.scene.add(sun)
+
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 32, 32),
+      new THREE.MeshToonMaterial({ color: 'teal' }),
     )
-    createRenderer(canvas)
+    sphere.position.set(0, 5, 0)
+    sphere.castShadow = true
+    state.scene.add(sphere)
+
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(30, 30, 10, 10),
+      new THREE.MeshStandardMaterial({ color: '#444' }),
+    )
+
+    plane.rotation.set(-Math.PI / 2, 0, 0)
+    plane.receiveShadow = true
+    state.scene.add(plane)
+    const renderObj = createRenderer(canvas)
+
+    console.log(renderObj)
   }
 }
+
+watch(renderer, initRenderer)
 </script>
+<template>
+  <canvas ref="renderer"></canvas>
+  <slot></slot>
+</template>

@@ -2,12 +2,13 @@ import {
   Camera,
   PCFSoftShadowMap,
   Scene,
+  ShadowMapType,
   WebGLRenderer,
   WebGLRendererParameters,
 } from 'three'
 import { computed, reactive, watch, toRaw } from 'vue'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { useWindowSize } from '@vueuse/core'
+import { isBoolean, useWindowSize } from '@vueuse/core'
 
 import { useLogger } from './useLogger'
 
@@ -20,12 +21,11 @@ export type RendererSize = {
 }
 
 export interface RendererConfig extends WebGLRendererParameters {
-  orbitControls?: boolean
-  shadows?: boolean
-  resize?: boolean
-  width?: number
-  height?: number
-  onResize?(size: RendererSize): void
+  orbitControls?: boolean | OrbitControls
+  shadows?: boolean | ShadowMapType
+  resize?: boolean | string
+  size?: number[]
+  context?: any
 }
 
 export interface RootStore {
@@ -64,9 +64,9 @@ export function useRenderer(config: RendererConfig) {
    */
   function createRenderer(
     canvas: HTMLCanvasElement,
-    context: any,
-  ): WebGLRenderer {
-    const setup = {
+    context?: any,
+  ): WebGLRenderer | null {
+    const setup: Partial<RendererConfig> = {
       canvas,
       antialias,
       alpha,
@@ -77,13 +77,15 @@ export function useRenderer(config: RendererConfig) {
     try {
       state.renderer = new WebGLRenderer(setup)
     } catch (error) {
-      logError(error)
-      return
+      logError(error as string)
+      return null
     }
 
     if (shadows) {
       state.renderer.shadowMap.enabled = true
-      state.renderer.shadowMap.type = PCFSoftShadowMap // TODO: add option to change this for other types
+      if (!isBoolean(shadows)) {
+        state.renderer.shadowMap.type = shadows as ShadowMapType
+      }
     }
 
     initRenderer()
@@ -129,7 +131,7 @@ export function useRenderer(config: RendererConfig) {
         )
         state.controls.enableDamping = true
       } catch (error) {
-        logError(error)
+        logError(error as string)
       }
     } else {
       logError(
