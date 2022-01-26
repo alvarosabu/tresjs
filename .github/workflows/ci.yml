@@ -22,5 +22,7 @@ jobs:
           version: 6
       - name: Install dependencies
         run: pnpm install
+      - name: Test Library
+        run: pnpm test:ci
       - name: Build Library
         run: pnpm build
