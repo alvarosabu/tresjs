@@ -13,7 +13,6 @@ specifiers:
   canvas: ^2.9.0
   cypress: ^9.3.1
   gl: ^5.0.0
-  husky: ^7.0.4
   jsdom: ^19.0.0
   pathe: ^0.2.0
   rollup-plugin-copy: ^3.4.0
@@ -46,7 +45,6 @@ devDependencies:
   canvas: 2.9.0
   cypress: 9.3.1
   gl: 5.0.0
-  husky: 7.0.4
   jsdom: 19.0.0_canvas@2.9.0
   pathe: 0.2.0
   rollup-plugin-copy: 3.4.0
@@ -4218,12 +4216,6 @@ packages:
     resolution: {integrity: sha1-xG4xWaKT9riW2ikxbYtv6Lt5u+0=}
     dependencies:
       ms: 2.1.2
-    dev: true
-
-  /husky/7.0.4:
-    resolution: {integrity: sha512-vbaCKN2QLtP/vD4yvs6iz6hBEo6wkSzs8HpRah1Z6aGmF2KW5PdYuAd7uX5a+OyBZHBhd+TFLqgjUgytQr4RvQ==}
-    engines: {node: '>=12'}
-    hasBin: true
     dev: true
 
   /iconv-lite/0.4.24:
