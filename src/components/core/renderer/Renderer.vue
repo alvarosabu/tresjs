@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 import { ShadowMapType } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { ref, watch, PropType } from 'vue'
+import { ref, watch, PropType, beforeUnmount } from 'vue'
 import { useRenderer } from '/@/composables/useRenderer'
 import { SizeFlexibleParams } from '/@/types'
 
@@ -108,18 +108,14 @@ function initRenderer(canvas: HTMLCanvasElement) {
   }
 }
 
-/* beforeUnmount(() => {
+beforeUnmount(() => {
   if (state.renderer) {
     state.renderer.dispose()
     state.renderer.domElement.remove()
   }
-}) */
+})
 
 watch(renderer, initRenderer)
-
-function beforeUnmount(arg0: () => void) {
-  throw new Error('Function not implemented.')
-}
 </script>
 <template>
   <canvas ref="renderer"></canvas>
