@@ -2,13 +2,13 @@ import {
   Camera,
   Scene,
   ShadowMapType,
-  Vector2,
   WebGLRenderer,
   WebGLRendererParameters,
 } from 'three'
-import { computed, reactive, watch, toRaw, getCurrentInstance } from 'vue'
+import { computed, watch, toRaw, getCurrentInstance } from 'vue'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { isBoolean, useWindowSize } from '@vueuse/core'
+import gl from '/@/store/basegl'
 
 import { useLogger } from './useLogger'
 
@@ -34,13 +34,6 @@ export interface RootStore {
   scene: Scene | null
   controls: OrbitControls | null
 }
-
-const state = reactive<RootStore>({
-  renderer: null,
-  camera: null,
-  scene: null,
-  controls: null,
-})
 
 export function useRenderer(config: RendererConfig) {
   const {
@@ -78,35 +71,36 @@ export function useRenderer(config: RendererConfig) {
       setup.context = context
     }
     try {
-      state.renderer = new WebGLRenderer(setup)
-      emit('created', state.renderer)
+      /*  gl.setRenderer(new WebGLRenderer(setup)) */
+      gl.renderer = new WebGLRenderer(setup)
+      emit('created', gl.renderer)
     } catch (error) {
       logError(error as string)
       return null
     }
 
     if (shadows) {
-      state.renderer.shadowMap.enabled = true
+      gl.renderer.shadowMap.enabled = true
       if (!isBoolean(shadows)) {
-        state.renderer.shadowMap.type = shadows as ShadowMapType
+        gl.renderer.shadowMap.type = shadows as ShadowMapType
       }
     }
 
     initRenderer()
-    return state.renderer
+    return gl.renderer
   }
 
   /**
    * init WebGLRenderer
    */
   function initRenderer() {
-    if (!state.scene) {
+    if (!gl.scene) {
       logError(
         'No scene provided - Please add a <scene> element to your template or use the `useScene`',
       )
       return
     }
-    if (!state.camera) {
+    if (!gl.camera) {
       logError(
         'No camera provided - Please add a <camera> element to your template or use the `useCamera`',
       )
@@ -127,14 +121,11 @@ export function useRenderer(config: RendererConfig) {
    * init OrbitControls
    */
   function initOrbitControls() {
-    if (!state.controls && state.renderer && state.camera) {
+    if (!gl.controls && gl.renderer && gl.camera) {
       try {
-        state.controls = new OrbitControls(
-          state.camera,
-          state.renderer.domElement,
-        )
-        state.controls.enableDamping = true
-        emit('controlsCreated', state.controls)
+        gl.controls = new OrbitControls(gl.camera, gl.renderer.domElement)
+        gl.controls.enableDamping = true
+        emit('controlsCreated', gl.controls)
       } catch (error) {
         logError(error as string)
       }
@@ -149,20 +140,20 @@ export function useRenderer(config: RendererConfig) {
    * update OrbitControls
    */
   function updateOrbitControls() {
-    if (!state.controls) {
+    if (!gl.controls) {
       logError(
         'No controls provided - Please initialize the controls with `initOrbitControls`',
       )
       return
     }
-    state.controls.update()
+    gl.controls.update()
   }
 
   /**
    * update renderer
    */
   function updateRenderer() {
-    if (!state.renderer) {
+    if (!gl.renderer) {
       logError(
         'No renderer provided - Please use CreateRenderer before using this hook',
       )
@@ -170,24 +161,24 @@ export function useRenderer(config: RendererConfig) {
     }
 
     if (resize) {
-      state.renderer.setSize(width.value, height.value)
-      state.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      gl.renderer.setSize(width.value, height.value)
+      gl.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     } else {
       if (Array.isArray(size)) {
-        state.renderer.setSize(size[0], size[1])
+        gl.renderer.setSize(size[0], size[1])
       } else {
-        state.renderer.setSize(size.width, size.height)
+        gl.renderer.setSize(size.width, size.height)
       }
     }
 
     emit('resize', {
-      width: state.renderer.domElement.clientWidth,
-      height: state.renderer.domElement.clientHeight,
+      width: gl.renderer.domElement.clientWidth,
+      height: gl.renderer.domElement.clientHeight,
     })
   }
 
   function updateCurrentCamera() {
-    if (!state.camera) {
+    if (!gl.camera) {
       logError(
         'No camera provided - Please add a <camera> element to your template or use the `useCamera`',
       )
@@ -195,15 +186,15 @@ export function useRenderer(config: RendererConfig) {
     }
 
     if (resize) {
-      state.camera.aspect = aspectRatio.value
+      gl.camera.aspect = aspectRatio.value
     } else {
       if (Array.isArray(size)) {
-        state.camera.aspect = size[0] / size[1]
+        gl.camera.aspect = size[0] / size[1]
       } else {
-        state.camera.aspect = size.width / size.height
+        gl.camera.aspect = size.width / size.height
       }
     }
-    state.camera.updateProjectionMatrix()
+    gl.camera.updateProjectionMatrix()
   }
 
   /**
@@ -211,34 +202,36 @@ export function useRenderer(config: RendererConfig) {
    *
    */
   function render() {
-    if (!state.renderer) {
+    if (!gl.renderer) {
       logError(
         'No renderer provided - Please use CreateRenderer before using this hook',
       )
       return
     }
-    if (!state.scene) {
+    if (!gl.scene) {
       logError(
         'No scene provided - Please add a <scene> element to your template or use the `useScene`',
       )
       return
     }
-    if (!state.camera) {
+    if (!gl.camera) {
       logError(
         'No camera provided - Please add a <camera> element to your template or use the `useCamera`',
       )
       return
     }
-    state.renderer.render(toRaw(state.scene), state.camera)
+    gl.renderer.render(toRaw(gl.scene), gl.camera)
   }
 
   const loop = () => {
     // Update renderer
-    if (orbitControls) {
-      updateOrbitControls()
-    }
-    emit('updated')
-    render()
+    try {
+      if (orbitControls) {
+        updateOrbitControls()
+      }
+      emit('updated')
+      render()
+    } catch (error) {}
 
     requestAnimationFrame(loop)
   }
@@ -250,6 +243,5 @@ export function useRenderer(config: RendererConfig) {
     updateRenderer,
     initOrbitControls,
     updateOrbitControls,
-    state,
   }
 }

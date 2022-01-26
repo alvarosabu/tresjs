@@ -2,8 +2,9 @@
 import * as THREE from 'three'
 import { ShadowMapType } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { ref, watch, PropType, beforeUnmount } from 'vue'
+import { ref, watch, PropType, onBeforeUnmount } from 'vue'
 import { useRenderer } from '/@/composables/useRenderer'
+import gl from '/@/store/basegl'
 import { SizeFlexibleParams } from '/@/types'
 
 const props = defineProps({
@@ -58,7 +59,7 @@ const emit = defineEmits([
 
 const renderer = ref(null)
 
-const { createRenderer, state } = useRenderer({
+const { createRenderer } = useRenderer({
   alpha: props.alpha,
   antialias: props.antialias,
   resize: props.resize,
@@ -70,21 +71,21 @@ const { createRenderer, state } = useRenderer({
 function initRenderer(canvas: HTMLCanvasElement) {
   if (canvas) {
     emit('init')
-    state.scene = new THREE.Scene()
-    state.camera = new THREE.PerspectiveCamera(
+    /* gl.scene = new THREE.Scene() */
+    gl.camera = new THREE.PerspectiveCamera(
       75,
       canvas.clientWidth / canvas.clientHeight,
       0.1,
       1000,
     )
-    state.camera.position.set(5, 5, 15)
-    state.scene.add(state.camera)
+    gl.camera.position.set(5, 5, 15)
+    gl.scene.add(gl.camera)
 
-    state.scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+    gl.scene.add(new THREE.AmbientLight(0xffffff, 0.5))
     const sun = new THREE.DirectionalLight(0xffffff, 0.8)
     sun.position.set(8, 8, 8)
     sun.castShadow = true
-    state.scene.add(sun)
+    gl.scene.add(sun)
 
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(1, 32, 32),
@@ -92,7 +93,7 @@ function initRenderer(canvas: HTMLCanvasElement) {
     )
     sphere.position.set(0, 5, 0)
     sphere.castShadow = true
-    state.scene.add(sphere)
+    gl.scene.add(sphere)
 
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(30, 30, 10, 10),
@@ -101,14 +102,14 @@ function initRenderer(canvas: HTMLCanvasElement) {
 
     plane.rotation.set(-Math.PI / 2, 0, 0)
     plane.receiveShadow = true
-    state.scene.add(plane)
+    gl.scene.add(plane)
     const renderObj = createRenderer(canvas)
 
     console.log(renderObj)
   }
 }
 
-beforeUnmount(() => {
+onBeforeUnmount(() => {
   if (state.renderer) {
     state.renderer.dispose()
     state.renderer.domElement.remove()

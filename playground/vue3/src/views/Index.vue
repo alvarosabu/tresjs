@@ -20,13 +20,19 @@ function onResize(e) {
 <template>
   <div class="page">
     <Renderer
+      alpha
       resize
       orbit-controls
       :shadows="PCFSoftShadowMap"
       @init="initRender"
       @created="onCreated"
       @resize="onResize"
-    />
+    >
+      <Scene
+        background="gray"
+        :fog="{ color: 'gray', near: 1, far: 15 }"
+      ></Scene>
+    </Renderer>
   </div>
 </template>
 

@@ -1,4 +1,5 @@
 import { App, inject, InjectionKey } from 'vue'
+import { createPinia } from 'pinia'
 
 export interface Plugin {
   install(app: App): void
@@ -19,6 +20,7 @@ const TresJSPlugin = {
   install(app: App) {
     app.provide(tresjsSymbol, TresJSPlugin)
 
+    app.use(createPinia())
     Object.entries(components).forEach(([path, definition]) => {
       const componentName =
         path
