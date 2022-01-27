@@ -1,10 +1,16 @@
-import { WebGLRenderer, Camera, Scene } from 'three'
+import {
+  WebGLRenderer,
+  Camera,
+  Scene,
+  PerspectiveCamera,
+  OrthographicCamera,
+} from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { reactive } from 'vue'
 
 export interface RootStore {
   renderer: WebGLRenderer | null
-  camera: Camera | null
+  camera: PerspectiveCamera | OrthographicCamera | null
   scene: Scene | null
   controls: OrbitControls | null
 }

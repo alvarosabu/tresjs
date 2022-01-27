@@ -18,8 +18,3 @@ setInterval(() => {
     </Renderer>
   </div>
 </template>
-
-<style>
-.page {
-}
-</style>

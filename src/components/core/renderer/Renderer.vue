@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { ShadowMapType } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { ref, watch, watchEffect, PropType, onBeforeUnmount } from 'vue'
+import { useLogger } from '/@/composables/useLogger'
 import { useRenderer } from '/@/composables/useRenderer'
 import { SizeFlexibleParams } from '/@/types'
 
@@ -43,7 +44,7 @@ const props = defineProps({
   },
   orbitControls: {
     // Defines whether to use orbit controls or not.
-    type: [Boolean, Object] as PropType<boolean | OrbitControls>,
+    type: [Boolean] as PropType<boolean>,
     default: false,
   },
 })
@@ -58,6 +59,8 @@ const emit = defineEmits([
 
 const renderer = ref(null)
 
+const { logMessage } = useLogger()
+
 const { gl, createRenderer, updateConfig } = useRenderer({
   alpha: props.alpha,
   antialias: props.antialias,
@@ -71,19 +74,9 @@ watchEffect(() => {
   updateConfig(props)
 })
 
-if (import.meta.hot) {
-  import.meta.hot.on('vite:beforeUpdate', data => {
-    // perform custom update
-    console.log('renderer:vite:befsoreUpdate', data)
-    if (gl.renderer) {
-      gl.renderer.dispose()
-      gl.renderer.domElement.remove()
-    }
-    initRenderer(renderer.value)
-  })
-}
+watch(renderer, initRenderer)
 
-function initRenderer(canvas: HTMLCanvasElement) {
+function initRenderer(canvas: HTMLCanvasElement | null) {
   if (canvas) {
     emit('init')
 
@@ -95,13 +88,13 @@ function initRenderer(canvas: HTMLCanvasElement) {
       1000,
     )
     gl.camera.position.set(5, 5, 15)
-    gl.scene.add(gl.camera)
+    gl.scene?.add(gl.camera)
 
-    gl.scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+    gl.scene?.add(new THREE.AmbientLight(0xffffff, 0.5))
     const sun = new THREE.DirectionalLight(0xffffff, 0.8)
     sun.position.set(8, 8, 8)
     sun.castShadow = true
-    gl.scene.add(sun)
+    gl.scene?.add(sun)
 
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(1, 32, 32),
@@ -109,7 +102,7 @@ function initRenderer(canvas: HTMLCanvasElement) {
     )
     sphere.position.set(0, 5, 0)
     sphere.castShadow = true
-    gl.scene.add(sphere)
+    gl.scene?.add(sphere)
 
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(30, 30, 10, 10),
@@ -118,7 +111,7 @@ function initRenderer(canvas: HTMLCanvasElement) {
 
     plane.rotation.set(-Math.PI / 2, 0, 0)
     plane.receiveShadow = true
-    gl.scene.add(plane)
+    gl.scene?.add(plane)
 
     createRenderer(canvas)
   }
@@ -131,7 +124,17 @@ onBeforeUnmount(() => {
   }
 })
 
-watch(renderer, initRenderer)
+if (import.meta.hot) {
+  import.meta.hot.on('vite:beforeUpdate', data => {
+    logMessage('render:vite:beforeUpdate', data)
+    // perform custom update
+    if (gl.renderer) {
+      gl.renderer.dispose()
+      gl.renderer.domElement.remove()
+    }
+    if (renderer.value) initRenderer(renderer.value)
+  })
+}
 </script>
 <template>
   <canvas ref="renderer"></canvas>

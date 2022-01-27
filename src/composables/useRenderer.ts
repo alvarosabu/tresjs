@@ -1,13 +1,20 @@
-import { WebGLRendererParameters, ShadowMapType, WebGLRenderer } from 'three'
+import {
+  WebGLRendererParameters,
+  ShadowMapType,
+  WebGLRenderer,
+  PerspectiveCamera,
+  Scene,
+  Camera,
+} from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { reactive, watch, toRaw, computed } from 'vue'
+import { reactive, watch, toRaw, computed, getCurrentInstance } from 'vue'
 import gl from '/@/store/basegl'
 import { isBoolean, useWindowSize } from '@vueuse/core'
 
 import { useLogger } from './useLogger'
 
 export interface RendererConfig extends WebGLRendererParameters {
-  orbitControls?: boolean | OrbitControls
+  orbitControls?: boolean
   shadows?: boolean | ShadowMapType
   resize?: boolean | string
   size?: number[] | { width: number; height: number }
@@ -25,6 +32,7 @@ const rendererConfig = reactive<RendererConfig>({
 
 export function useRenderer(config: RendererConfig) {
   const { logError } = useLogger()
+  const ctx = getCurrentInstance()
 
   const { width, height } = useWindowSize()
   const aspectRatio = computed(() => width.value / height.value)
@@ -42,7 +50,9 @@ export function useRenderer(config: RendererConfig) {
   watch(
     () => rendererConfig.orbitControls,
     value => {
-      toggleOrbitControls(value)
+      if (value) {
+        toggleOrbitControls(value)
+      }
     },
   )
 
@@ -52,7 +62,7 @@ export function useRenderer(config: RendererConfig) {
     Object.assign(rendererConfig, config)
   }
 
-  function toggleShadows(value?: boolean | ShadowMapType) {
+  function toggleShadows(value?: boolean | ShadowMapType | undefined) {
     if (gl.renderer && value !== undefined) {
       if (isBoolean(value)) {
         gl.renderer.shadowMap.enabled = value
@@ -75,7 +85,7 @@ export function useRenderer(config: RendererConfig) {
     } */
   }
 
-  function toggleOrbitControls(value: boolean | OrbitControls) {
+  function toggleOrbitControls(value: boolean) {
     if (value && gl.camera && gl.renderer) {
       gl.controls = new OrbitControls(gl.camera, gl.renderer.domElement)
       gl.controls.enableDamping = true
@@ -107,12 +117,11 @@ export function useRenderer(config: RendererConfig) {
     }
 
     try {
-      /*  gl.setRenderer(new WebGLRenderer(setup)) */
       gl.renderer = new WebGLRenderer(setup)
       initRenderer()
 
+      ctx?.emit('created', gl.renderer)
       return gl.renderer
-      /* emit('created', gl.renderer) */
     } catch (error) {
       logError(error as string)
       return null
@@ -131,10 +140,12 @@ export function useRenderer(config: RendererConfig) {
   }
 
   function updateRenderer() {
-    gl.renderer.setSize(width.value, height.value)
-    gl.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    gl.camera.aspect = aspectRatio.value
-    gl.camera.updateProjectionMatrix()
+    gl.renderer?.setSize(width.value, height.value)
+    gl.renderer?.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    if (gl.camera) {
+      ;(gl.camera as PerspectiveCamera).aspect = aspectRatio.value
+      gl.camera?.updateProjectionMatrix()
+    }
   }
 
   function render() {
@@ -142,7 +153,19 @@ export function useRenderer(config: RendererConfig) {
       logError('Renderer not created')
       return
     }
-    gl.renderer.render(toRaw(gl.scene), gl.camera)
+    if (!gl.scene) {
+      logError(
+        'No scene provided - Please add a <scene> element to your template or use the `useScene`',
+      )
+      return
+    }
+    if (!gl.camera) {
+      logError(
+        'No camera provided - Please add a <camera> element to your template or use the `useCamera`',
+      )
+      return
+    }
+    gl.renderer.render(toRaw(gl.scene) as Scene, gl.camera as Camera)
   }
 
   const loop = () => {

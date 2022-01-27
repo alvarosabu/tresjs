@@ -14,9 +14,9 @@ beforeEach(() => {
 })
 
 it('should create a renderer when canvas is provided', () => {
-  const { createRenderer, state } = useRenderer({})
+  const { createRenderer, gl } = useRenderer({})
   createRenderer(canvasGL, glContext)
-  expect(state.renderer).to.be.instanceOf(WebGLRenderer)
+  expect(gl.renderer).to.be.instanceOf(WebGLRenderer)
 })
 
 it('should prompt an error if no scene is provided', () => {
@@ -28,8 +28,8 @@ it('should prompt an error if no scene is provided', () => {
 })
 
 it('should prompt an error if no camera is provided', () => {
-  const { createRenderer, state } = useRenderer({})
-  state.scene = new Scene()
+  const { createRenderer, gl } = useRenderer({})
+  gl.scene = new Scene()
   createRenderer(canvasGL, glContext)
   expect(console.error).toHaveBeenCalledWith(
     '[TresJS 🪐⚡️] No camera provided - Please add a <camera> element to your template or use the `useCamera`',
