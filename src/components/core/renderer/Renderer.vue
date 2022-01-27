@@ -2,9 +2,8 @@
 import * as THREE from 'three'
 import { ShadowMapType } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { ref, watch, PropType, onBeforeUnmount } from 'vue'
+import { ref, watch, watchEffect, PropType, onBeforeUnmount } from 'vue'
 import { useRenderer } from '/@/composables/useRenderer'
-import gl from '/@/store/basegl'
 import { SizeFlexibleParams } from '/@/types'
 
 const props = defineProps({
@@ -59,7 +58,7 @@ const emit = defineEmits([
 
 const renderer = ref(null)
 
-const { createRenderer } = useRenderer({
+const { gl, createRenderer, updateConfig } = useRenderer({
   alpha: props.alpha,
   antialias: props.antialias,
   resize: props.resize,
@@ -68,9 +67,26 @@ const { createRenderer } = useRenderer({
   size: props.size,
 })
 
+watchEffect(() => {
+  updateConfig(props)
+})
+
+if (import.meta.hot) {
+  import.meta.hot.on('vite:beforeUpdate', data => {
+    // perform custom update
+    console.log('renderer:vite:befsoreUpdate', data)
+    if (gl.renderer) {
+      gl.renderer.dispose()
+      gl.renderer.domElement.remove()
+    }
+    initRenderer(renderer.value)
+  })
+}
+
 function initRenderer(canvas: HTMLCanvasElement) {
   if (canvas) {
     emit('init')
+
     /* gl.scene = new THREE.Scene() */
     gl.camera = new THREE.PerspectiveCamera(
       75,
@@ -103,16 +119,15 @@ function initRenderer(canvas: HTMLCanvasElement) {
     plane.rotation.set(-Math.PI / 2, 0, 0)
     plane.receiveShadow = true
     gl.scene.add(plane)
-    const renderObj = createRenderer(canvas)
 
-    console.log(renderObj)
+    createRenderer(canvas)
   }
 }
 
 onBeforeUnmount(() => {
-  if (state.renderer) {
-    state.renderer.dispose()
-    state.renderer.domElement.remove()
+  if (gl.renderer) {
+    gl.renderer.dispose()
+    gl.renderer.domElement.remove()
   }
 })
 

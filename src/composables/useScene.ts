@@ -4,7 +4,7 @@ import gl from '/@/store/basegl'
 import { useLogger } from './useLogger'
 
 export function useScene() {
-  const { logError } = useLogger()
+  const { logWarning, logError } = useLogger()
 
   const state = reactive<{ background: string | null; fog: Fog | null }>({
     background: null,
@@ -12,7 +12,7 @@ export function useScene() {
   })
   function create({ background, fog }: { background: string; fog: Fog }) {
     if (gl.scene) {
-      logError('Scene already created please destroy it first')
+      logWarning('Scene already created please destroy it first')
       return
     }
     gl.scene = new Scene()
