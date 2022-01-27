@@ -15,8 +15,8 @@ export function useScene() {
     background,
     fog,
   }: {
-    background: string | undefined
-    fog: Fog | undefined
+    background?: string | undefined
+    fog?: Fog | undefined
   }) {
     if (gl.scene) {
       logWarning('Scene already created please destroy it first')
@@ -24,6 +24,7 @@ export function useScene() {
     }
     gl.scene = new Scene()
     update({ background, fog })
+    return gl.scene
   }
 
   function update({
