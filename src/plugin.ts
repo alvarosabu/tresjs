@@ -15,7 +15,7 @@ export function useTres(): Plugin {
   return tresjs
 }
 
-const TresJSPlugin = {
+export const TresJSPlugin = {
   install(app: App) {
     app.provide(tresjsSymbol, TresJSPlugin)
 

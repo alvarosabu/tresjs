@@ -12,7 +12,7 @@ setInterval(() => {
 </script>
 <template>
   <div class="page">
-    <Renderer alpha resize orbit-controls :shadows="shadows">
+    <Renderer alpha resize="window" orbit-controls :shadows="shadows">
       <Scene
         background="gray"
         :fog="{ color: 'gray', near: 1, far: 15 }"
@@ -23,5 +23,6 @@ setInterval(() => {
 
 <style>
 .page {
+  width: 50%;
 }
 </style>

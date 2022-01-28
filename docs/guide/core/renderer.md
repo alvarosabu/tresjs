@@ -10,14 +10,14 @@ The renderer Component is the portal into [ThreeJS Renderer](https://threejs.org
 
 ## Essential
 
-| Prop        | Description                                                                                | Type                   | Value       |
-| :---------- | :----------------------------------------------------------------------------------------- | :--------------------- | :---------- |
-| `alpha`     | Defines whether the canvas contains an alpha (transparency) buffer or not.                 | Boolean                | `false`     |
-| `antialias` | Defines whether the canvas should perform anti-aliasing or not.                            | Boolean                | `false`     |
-| `resize`    | Defines whether the canvas should resize itself automatically or not.                      | Boolean                | `false`     |
-| `autoClear` | Defines whether the renderer should clear the canvas before rendering.                     | Boolean                | `true`      |
-| `shadows`   | Defines whether the renderer should render shadows or not. (false, true, PCFSoftShadowMap) | Boolean, ShadowMapType | `false`     |
-| `size`      |  Defines the size of the canvas. Allows values like `[width, height]` or `{width, height}` | Array, Object          | `[800,600]` |
+| Prop        | Description                                                                                                                        | Type                   | Value       |
+| :---------- | :--------------------------------------------------------------------------------------------------------------------------------- | :--------------------- | :---------- |
+| `alpha`     | Defines whether the canvas contains an alpha (transparency) buffer or not.                                                         | Boolean                | `false`     |
+| `antialias` | Defines whether the canvas should perform anti-aliasing or not.                                                                    | Boolean                | `false`     |
+| `resize`    | Defines whether the canvas should resize itself automatically or not. (alse : disabled, true : parent size 'window' : window size) | Boolean, String        | `false`     |
+| `autoClear` | Defines whether the renderer should clear the canvas before rendering.                                                             | Boolean                | `true`      |
+| `shadows`   | Defines whether the renderer should render shadows or not. (false, true, PCFSoftShadowMap)                                         | Boolean, ShadowMapType | `false`     |
+| `size`      |  Defines the size of the canvas. Allows values like `[width, height]` or `{width, height}`                                         | Array, Object          | `[800,600]` |
 
 ## Misc
 

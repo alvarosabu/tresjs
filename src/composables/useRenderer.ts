@@ -14,6 +14,7 @@ import { isBoolean, useWindowSize } from '@vueuse/core'
 import { useLogger } from './useLogger'
 
 export interface RendererConfig extends WebGLRendererParameters {
+  canvas?: HTMLCanvasElement
   orbitControls?: boolean
   shadows?: boolean | ShadowMapType
   resize?: boolean | string
@@ -22,6 +23,7 @@ export interface RendererConfig extends WebGLRendererParameters {
 }
 
 const rendererConfig = reactive<RendererConfig>({
+  canvas: undefined,
   orbitControls: false,
   antialias: true,
   alpha: false,
@@ -56,6 +58,15 @@ export function useRenderer(config: RendererConfig) {
     },
   )
 
+  watch(
+    () => rendererConfig.resize,
+    value => {
+      if (value) {
+        toggleResize(value)
+      }
+    },
+  )
+
   Object.assign(rendererConfig, config)
 
   function updateConfig(config: RendererConfig) {
@@ -85,6 +96,31 @@ export function useRenderer(config: RendererConfig) {
     } */
   }
 
+  function toggleResize(value: boolean | string) {
+    const parent = rendererConfig?.canvas?.parentNode
+    let resizeWidth
+    let resizeHeight
+    let aspect
+    if (isBoolean(value) && parent) {
+      if (value) {
+        const { clientWidth, clientHeight } = parent as HTMLElement
+        resizeWidth = clientWidth
+        resizeHeight = clientHeight
+        aspect = resizeWidth / resizeHeight
+      }
+    } else if (value === 'window') {
+      resizeWidth = width.value
+      resizeHeight = height.value
+      aspect = aspectRatio.value
+    }
+    gl.renderer?.setSize(resizeWidth || 800, resizeHeight || 600)
+    gl.renderer?.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    if (gl.camera && aspect) {
+      ;(gl.camera as PerspectiveCamera).aspect = aspect
+      gl.camera?.updateProjectionMatrix()
+    }
+  }
+
   function toggleOrbitControls(value: boolean) {
     if (value && gl.camera && gl.renderer) {
       gl.controls = new OrbitControls(gl.camera, gl.renderer.domElement)
@@ -111,6 +147,8 @@ export function useRenderer(config: RendererConfig) {
       antialias: rendererConfig.antialias,
       alpha: rendererConfig.alpha,
     }
+
+    rendererConfig.canvas = canvas
 
     if (context) {
       setup.context = context
@@ -140,11 +178,8 @@ export function useRenderer(config: RendererConfig) {
   }
 
   function updateRenderer() {
-    gl.renderer?.setSize(width.value, height.value)
-    gl.renderer?.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    if (gl.camera) {
-      ;(gl.camera as PerspectiveCamera).aspect = aspectRatio.value
-      gl.camera?.updateProjectionMatrix()
+    if (rendererConfig.resize) {
+      toggleResize(rendererConfig.resize)
     }
   }
 

@@ -97,7 +97,7 @@ function initRenderer(canvas: HTMLCanvasElement | null) {
     gl.scene?.add(sun)
 
     const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 32, 32),
+      new THREE.SphereGeometry(3, 32, 32),
       new THREE.MeshToonMaterial({ color: '#EFAC35' }),
     )
     sphere.position.set(0, 5, 0)

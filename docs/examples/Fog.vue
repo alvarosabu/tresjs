@@ -1,0 +1,23 @@
+<script>
+import 'virtual:windi.css'
+</script>
+
+<template>
+  <div class="fog-example">
+    <Renderer alpha resize orbit-controls>
+      <Scene
+        background="gray"
+        :fog="{ color: 'gray', near: 1, far: 15 }"
+      ></Scene>
+    </Renderer>
+  </div>
+</template>
+
+<style>
+.fog-example {
+  border-radius: 5px;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+</style>
