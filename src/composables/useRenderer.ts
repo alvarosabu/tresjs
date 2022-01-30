@@ -29,6 +29,7 @@ export interface RendererConfig extends WebGLRendererParameters {
   resize?: boolean | string
   size?: number[] | { width: number; height: number }
   context?: any
+  physicallyCorrectLights: boolean
 }
 
 const rendererConfig = reactive<RendererConfig>({
@@ -39,6 +40,7 @@ const rendererConfig = reactive<RendererConfig>({
   resize: false,
   shadows: false,
   size: [800, 600],
+  physicallyCorrectLights: false,
 })
 
 const instance: Ref<string> = ref(uuidv4())
@@ -185,11 +187,16 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
   }
 
   function initRenderer() {
-    toggleShadows(rendererConfig.shadows)
-
-    if (rendererConfig.orbitControls && currentGL.value) {
-      toggleOrbitControls(rendererConfig.orbitControls)
+    if (currentGL.value) {
+      toggleShadows(rendererConfig.shadows)
+      if (rendererConfig.orbitControls) {
+        toggleOrbitControls(rendererConfig.orbitControls)
+      }
+      if (currentGL.value.renderer)
+        currentGL.value.renderer.physicallyCorrectLights =
+          rendererConfig.physicallyCorrectLights
     }
+
     render()
     loop()
     updateRenderer()

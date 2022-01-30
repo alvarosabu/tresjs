@@ -28,11 +28,12 @@ The `<RendererCanvas />` Component allow you to set up what and where is to be r
 
 ## Misc
 
-| Prop             | Description                                                                                    | Type         | Value   |
-| :--------------- | :--------------------------------------------------------------------------------------------- | :----------- | :------ |
-|  `orbitControls` | Defines whether the OrbitControls should be enabled or not.                                    | Boolean      | `false` |
-| `background`     | Sets the background used when rendering the scene, and is always rendered first                | String       |         |
-| `fog`            | Defines whether the scene renders a linear fog (that grows linearly denser with the distance.) | Boolean, Fog |         |
+| Prop                      | Description                                                                                    | Type         | Value   |
+| :------------------------ | :--------------------------------------------------------------------------------------------- | :----------- | :------ |
+|  `orbitControls`          | Defines whether the OrbitControls should be enabled or not.                                    | Boolean      | `false` |
+| `background`              | Sets the background used when rendering the scene, and is always rendered first                | String       |         |
+| `fog`                     | Defines whether the scene renders a linear fog (that grows linearly denser with the distance.) | Boolean, Fog |         |
+| `physicallyCorrectLights` | Whether to use physically correct lighting mode. Default is false.                             | Boolean      |         |
 
 Orbit controls allow the camera to orbit around a target. Check more [three-js-orbit-controls](https://threejs.org/docs/index.html?q=Orbit#examples/en/controls/OrbitControls)
 

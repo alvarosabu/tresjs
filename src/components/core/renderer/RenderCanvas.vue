@@ -54,6 +54,10 @@ const props = defineProps({
   fog: {
     type: Object as PropType<Fog>,
   },
+  physicallyCorrectLights: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits([
@@ -77,6 +81,7 @@ const { gl, createRenderer, updateConfig } = useRenderer(
     orbitControls: props.orbitControls,
     shadows: props.shadows,
     size: props.size,
+    physicallyCorrectLights: props.physicallyCorrectLights,
   },
   instanceId.value,
 )
