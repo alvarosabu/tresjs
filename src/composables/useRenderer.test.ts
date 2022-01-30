@@ -3,7 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { useRenderer } from './useRenderer'
 import { Window } from 'happy-dom'
 
-import useGL from '/@/store/basegl'
+import useGL from '/@/composables/useGL'
 import GL from 'gl'
 
 const window = new Window()

@@ -1,6 +1,5 @@
 import {
   WebGLRenderer,
-  Camera,
   Scene,
   PerspectiveCamera,
   OrthographicCamera,
@@ -37,15 +36,3 @@ export default function useGL(instanceId?: string): {
 
   return { gl, addInstance, currentGL }
 }
-
-/* export const useStore = defineStore('gl', {
-  // other options...
-  state: () =>
-    ({
-      renderer: null,
-      camera: null,
-      scene: null,
-      controls: null,
-    } as RootStore),
-})
- */

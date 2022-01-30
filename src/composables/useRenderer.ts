@@ -20,7 +20,7 @@ import { isBoolean, useWindowSize } from '@vueuse/core'
 import { v4 as uuidv4 } from 'uuid'
 
 import { useLogger } from './useLogger'
-import useGL from '/@/store/basegl'
+import useGL from './useGL'
 
 export interface RendererConfig extends WebGLRendererParameters {
   canvas?: HTMLCanvasElement
@@ -102,18 +102,6 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
         currentGL.value.renderer.shadowMap.type = value as ShadowMapType
       }
     }
-    /*    if (!currentGL.value.renderer) {
-      return
-    }
-    currentGL.value.renderer.shadowMap.enabled = value */
-    /* if (currentGL.value.renderer) {
-      if (isBoolean(value)) {
-        currentGL.value.renderer.shadowMap.enabled = value
-      } else {
-        currentGL.value.renderer.shadowMap.enabled = value
-        currentGL.value.renderer.shadowMap.type = value
-      }
-    } */
   }
 
   function toggleResize(value: boolean | string) {

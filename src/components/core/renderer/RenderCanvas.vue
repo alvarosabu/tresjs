@@ -7,7 +7,6 @@ import { useRenderer } from '/@/composables/useRenderer'
 import { useScene } from '/@/composables/useScene'
 import { SizeFlexibleParams } from '/@/types'
 import { v4 as uuidv4 } from 'uuid'
-import useGL from '/@/store/basegl'
 
 const props = defineProps({
   alpha: {
