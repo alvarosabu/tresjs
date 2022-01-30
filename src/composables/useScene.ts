@@ -3,10 +3,9 @@ import { Color, Fog, Scene } from 'three'
 import { useLogger } from './useLogger'
 import useGL from '/@/store/basegl'
 
-export function useScene(instanceId: string) {
+export function useScene(instanceId?: string) {
   const { logWarning, logError } = useLogger()
-  const { gl } = useGL()
-  const currentInstance = computed(() => gl.instances[instanceId])
+  const { currentGL } = useGL(instanceId)
 
   const state = reactive<{ background: string | null; fog: Fog | null }>({
     background: null,
@@ -20,13 +19,13 @@ export function useScene(instanceId: string) {
     background?: string | undefined
     fog?: Fog | undefined
   }) {
-    if (currentInstance.value.scene) {
+    if (currentGL.value.scene) {
       logWarning('Scene already created please destroy it first')
       return
     }
-    currentInstance.value.scene = new Scene()
+    currentGL.value.scene = new Scene()
     update({ background, fog })
-    return currentInstance.value.scene
+    return currentGL.value.scene
   }
 
   function update({
@@ -36,16 +35,16 @@ export function useScene(instanceId: string) {
     background?: string | undefined | null
     fog?: Fog | undefined | null
   }) {
-    if (!currentInstance.value.scene) {
+    if (!currentGL.value.scene) {
       logError('Scene not created please create it first')
       return
     }
     if (background) {
-      currentInstance.value.scene.background = new Color(background)
+      currentGL.value.scene.background = new Color(background)
     }
     if (fog) {
       const { color, near = 1, far = 1000 } = fog
-      currentInstance.value.scene.fog = new Fog(new Color(color), near, far)
+      currentGL.value.scene.fog = new Fog(new Color(color), near, far)
     }
   }
 

@@ -42,12 +42,12 @@ const rendererConfig = reactive<RendererConfig>({
 })
 
 const instance: Ref<string> = ref(uuidv4())
-const { gl, addInstance } = useGL()
 
 export function useRenderer(config: RendererConfig, instanceId?: string) {
   const { logError } = useLogger()
   const ctx = getCurrentInstance()
   if (instanceId) instance.value = instanceId
+  const { gl, addInstance, currentGL } = useGL(instanceId)
 
   addInstance(instance.value, {
     renderer: null,
@@ -55,9 +55,6 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
     scene: null,
     controls: null,
   })
-  const currentInstance = computed(
-    () => gl.instances[instanceId || instance.value],
-  )
 
   const { width, height } = useWindowSize()
   const aspectRatio = computed(() => width.value / height.value)
@@ -97,30 +94,30 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
   }
 
   function toggleShadows(value?: boolean | ShadowMapType | undefined) {
-    if (currentInstance.value.renderer && value !== undefined) {
+    if (currentGL.value.renderer && value !== undefined) {
       if (isBoolean(value)) {
-        currentInstance.value.renderer.shadowMap.enabled = value as boolean
+        currentGL.value.renderer.shadowMap.enabled = value as boolean
       } else {
-        currentInstance.value.renderer.shadowMap.enabled = true
-        currentInstance.value.renderer.shadowMap.type = value as ShadowMapType
+        currentGL.value.renderer.shadowMap.enabled = true
+        currentGL.value.renderer.shadowMap.type = value as ShadowMapType
       }
     }
-    /*    if (!currentInstance.value.renderer) {
+    /*    if (!currentGL.value.renderer) {
       return
     }
-    currentInstance.value.renderer.shadowMap.enabled = value */
-    /* if (currentInstance.value.renderer) {
+    currentGL.value.renderer.shadowMap.enabled = value */
+    /* if (currentGL.value.renderer) {
       if (isBoolean(value)) {
-        currentInstance.value.renderer.shadowMap.enabled = value
+        currentGL.value.renderer.shadowMap.enabled = value
       } else {
-        currentInstance.value.renderer.shadowMap.enabled = value
-        currentInstance.value.renderer.shadowMap.type = value
+        currentGL.value.renderer.shadowMap.enabled = value
+        currentGL.value.renderer.shadowMap.type = value
       }
     } */
   }
 
   function toggleResize(value: boolean | string) {
-    if (currentInstance.value) {
+    if (currentGL.value) {
       const parent = rendererConfig?.canvas?.parentNode
       let resizeWidth
       let resizeHeight
@@ -137,43 +134,36 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
         resizeHeight = height.value
         aspect = aspectRatio.value
       }
-      currentInstance.value.renderer?.setSize(
-        resizeWidth || 800,
-        resizeHeight || 600,
-      )
-      currentInstance.value.renderer?.setPixelRatio(
+      currentGL.value.renderer?.setSize(resizeWidth || 800, resizeHeight || 600)
+      currentGL.value.renderer?.setPixelRatio(
         Math.min(window.devicePixelRatio, 2),
       )
-      if (currentInstance.value.camera && aspect) {
-        ;(currentInstance.value.camera as PerspectiveCamera).aspect = aspect
-        currentInstance.value.camera?.updateProjectionMatrix()
+      if (currentGL.value.camera && aspect) {
+        ;(currentGL.value.camera as PerspectiveCamera).aspect = aspect
+        currentGL.value.camera?.updateProjectionMatrix()
       }
     }
   }
 
   function toggleOrbitControls(value: boolean) {
-    if (currentInstance.value) {
-      if (
-        value &&
-        currentInstance.value.camera &&
-        currentInstance.value.renderer
-      ) {
-        currentInstance.value.controls = new OrbitControls(
-          currentInstance.value.camera,
-          currentInstance.value.renderer.domElement,
+    if (currentGL.value) {
+      if (value && currentGL.value.camera && currentGL.value.renderer) {
+        currentGL.value.controls = new OrbitControls(
+          currentGL.value.camera,
+          currentGL.value.renderer.domElement,
         )
-        currentInstance.value.controls.enableDamping = true
+        currentGL.value.controls.enableDamping = true
       } else {
-        if (currentInstance.value.controls) {
-          currentInstance.value.controls.enabled = false
+        if (currentGL.value.controls) {
+          currentGL.value.controls.enabled = false
         }
       }
     }
   }
 
   function updateControls() {
-    if (currentInstance.value.controls) {
-      currentInstance.value.controls.update()
+    if (currentGL.value.controls) {
+      currentGL.value.controls.update()
     }
   }
 
@@ -196,7 +186,7 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
     try {
       const renderer = new WebGLRenderer(setup)
 
-      currentInstance.value.renderer = renderer
+      currentGL.value.renderer = renderer
       initRenderer()
 
       ctx?.emit('created')
@@ -209,7 +199,7 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
   function initRenderer() {
     toggleShadows(rendererConfig.shadows)
 
-    if (rendererConfig.orbitControls && currentInstance.value) {
+    if (rendererConfig.orbitControls && currentGL.value) {
       toggleOrbitControls(rendererConfig.orbitControls)
     }
     render()
@@ -224,25 +214,25 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
   }
 
   function render() {
-    if (!currentInstance.value.renderer) {
+    if (!currentGL.value.renderer) {
       logError('Renderer not created')
       return
     }
-    if (!currentInstance.value.scene) {
+    if (!currentGL.value.scene) {
       logError(
         'No scene provided - Please add a <scene> element to your template or use the `useScene`',
       )
       return
     }
-    if (!currentInstance.value.camera) {
+    if (!currentGL.value.camera) {
       logError(
         'No camera provided - Please add a <camera> element to your template or use the `useCamera`',
       )
       return
     }
-    currentInstance.value.renderer.render(
-      toRaw(currentInstance.value.scene) as Scene,
-      currentInstance.value.camera as Camera,
+    currentGL.value.renderer.render(
+      toRaw(currentGL.value.scene) as Scene,
+      currentGL.value.camera as Camera,
     )
   }
 
@@ -259,6 +249,6 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
     createRenderer,
     updateConfig,
     initRenderer,
-    gl: currentInstance.value,
+    gl: currentGL.value,
   }
 }
