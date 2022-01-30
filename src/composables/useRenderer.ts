@@ -7,11 +7,20 @@ import {
   Camera,
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { reactive, watch, toRaw, computed, getCurrentInstance } from 'vue'
-import gl from '/@/store/basegl'
+import {
+  reactive,
+  watch,
+  toRaw,
+  computed,
+  getCurrentInstance,
+  ref,
+  Ref,
+} from 'vue'
 import { isBoolean, useWindowSize } from '@vueuse/core'
+import { v4 as uuidv4 } from 'uuid'
 
 import { useLogger } from './useLogger'
+import useGL from '/@/store/basegl'
 
 export interface RendererConfig extends WebGLRendererParameters {
   canvas?: HTMLCanvasElement
@@ -32,9 +41,23 @@ const rendererConfig = reactive<RendererConfig>({
   size: [800, 600],
 })
 
-export function useRenderer(config: RendererConfig) {
+const instance: Ref<string> = ref(uuidv4())
+const { gl, addInstance } = useGL()
+
+export function useRenderer(config: RendererConfig, instanceId?: string) {
   const { logError } = useLogger()
   const ctx = getCurrentInstance()
+  if (instanceId) instance.value = instanceId
+
+  addInstance(instance.value, {
+    renderer: null,
+    camera: null,
+    scene: null,
+    controls: null,
+  })
+  const currentInstance = computed(
+    () => gl.instances[instanceId || instance.value],
+  )
 
   const { width, height } = useWindowSize()
   const aspectRatio = computed(() => width.value / height.value)
@@ -74,80 +97,96 @@ export function useRenderer(config: RendererConfig) {
   }
 
   function toggleShadows(value?: boolean | ShadowMapType | undefined) {
-    if (gl.renderer && value !== undefined) {
+    if (currentInstance.value.renderer && value !== undefined) {
       if (isBoolean(value)) {
-        gl.renderer.shadowMap.enabled = value
+        currentInstance.value.renderer.shadowMap.enabled = value as boolean
       } else {
-        gl.renderer.shadowMap.enabled = true
-        gl.renderer.shadowMap.type = value
+        currentInstance.value.renderer.shadowMap.enabled = true
+        currentInstance.value.renderer.shadowMap.type = value as ShadowMapType
       }
     }
-    /*    if (!gl.renderer) {
+    /*    if (!currentInstance.value.renderer) {
       return
     }
-    gl.renderer.shadowMap.enabled = value */
-    /* if (gl.renderer) {
+    currentInstance.value.renderer.shadowMap.enabled = value */
+    /* if (currentInstance.value.renderer) {
       if (isBoolean(value)) {
-        gl.renderer.shadowMap.enabled = value
+        currentInstance.value.renderer.shadowMap.enabled = value
       } else {
-        gl.renderer.shadowMap.enabled = value
-        gl.renderer.shadowMap.type = value
+        currentInstance.value.renderer.shadowMap.enabled = value
+        currentInstance.value.renderer.shadowMap.type = value
       }
     } */
   }
 
   function toggleResize(value: boolean | string) {
-    const parent = rendererConfig?.canvas?.parentNode
-    let resizeWidth
-    let resizeHeight
-    let aspect
-    if (isBoolean(value) && parent) {
-      if (value) {
-        const { clientWidth, clientHeight } = parent as HTMLElement
-        resizeWidth = clientWidth
-        resizeHeight = clientHeight
-        aspect = resizeWidth / resizeHeight
+    if (currentInstance.value) {
+      const parent = rendererConfig?.canvas?.parentNode
+      let resizeWidth
+      let resizeHeight
+      let aspect
+      if (isBoolean(value) && parent) {
+        if (value) {
+          const { clientWidth, clientHeight } = parent as HTMLElement
+          resizeWidth = clientWidth
+          resizeHeight = clientHeight
+          aspect = resizeWidth / resizeHeight
+        }
+      } else if (value === 'window') {
+        resizeWidth = width.value
+        resizeHeight = height.value
+        aspect = aspectRatio.value
       }
-    } else if (value === 'window') {
-      resizeWidth = width.value
-      resizeHeight = height.value
-      aspect = aspectRatio.value
-    }
-    gl.renderer?.setSize(resizeWidth || 800, resizeHeight || 600)
-    gl.renderer?.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    if (gl.camera && aspect) {
-      ;(gl.camera as PerspectiveCamera).aspect = aspect
-      gl.camera?.updateProjectionMatrix()
+      currentInstance.value.renderer?.setSize(
+        resizeWidth || 800,
+        resizeHeight || 600,
+      )
+      currentInstance.value.renderer?.setPixelRatio(
+        Math.min(window.devicePixelRatio, 2),
+      )
+      if (currentInstance.value.camera && aspect) {
+        ;(currentInstance.value.camera as PerspectiveCamera).aspect = aspect
+        currentInstance.value.camera?.updateProjectionMatrix()
+      }
     }
   }
 
   function toggleOrbitControls(value: boolean) {
-    if (value && gl.camera && gl.renderer) {
-      gl.controls = new OrbitControls(gl.camera, gl.renderer.domElement)
-      gl.controls.enableDamping = true
-    } else {
-      if (gl.controls) {
-        gl.controls.enabled = false
+    if (currentInstance.value) {
+      if (
+        value &&
+        currentInstance.value.camera &&
+        currentInstance.value.renderer
+      ) {
+        currentInstance.value.controls = new OrbitControls(
+          currentInstance.value.camera,
+          currentInstance.value.renderer.domElement,
+        )
+        currentInstance.value.controls.enableDamping = true
+      } else {
+        if (currentInstance.value.controls) {
+          currentInstance.value.controls.enabled = false
+        }
       }
     }
   }
 
   function updateControls() {
-    if (gl.controls) {
-      gl.controls.update()
+    if (currentInstance.value.controls) {
+      currentInstance.value.controls.update()
     }
   }
 
   function createRenderer(
     canvas: HTMLCanvasElement,
     context?: any,
-  ): WebGLRenderer | null {
+  ): void | null {
     const setup: Partial<RendererConfig> = {
       canvas,
       antialias: rendererConfig.antialias,
       alpha: rendererConfig.alpha,
     }
-
+    if (instance.value) canvas.setAttribute('id', instance.value)
     rendererConfig.canvas = canvas
 
     if (context) {
@@ -155,11 +194,12 @@ export function useRenderer(config: RendererConfig) {
     }
 
     try {
-      gl.renderer = new WebGLRenderer(setup)
+      const renderer = new WebGLRenderer(setup)
+
+      currentInstance.value.renderer = renderer
       initRenderer()
 
-      ctx?.emit('created', gl.renderer)
-      return gl.renderer
+      ctx?.emit('created')
     } catch (error) {
       logError(error as string)
       return null
@@ -169,7 +209,7 @@ export function useRenderer(config: RendererConfig) {
   function initRenderer() {
     toggleShadows(rendererConfig.shadows)
 
-    if (rendererConfig.orbitControls) {
+    if (rendererConfig.orbitControls && currentInstance.value) {
       toggleOrbitControls(rendererConfig.orbitControls)
     }
     render()
@@ -184,23 +224,26 @@ export function useRenderer(config: RendererConfig) {
   }
 
   function render() {
-    if (!gl.renderer) {
+    if (!currentInstance.value.renderer) {
       logError('Renderer not created')
       return
     }
-    if (!gl.scene) {
+    if (!currentInstance.value.scene) {
       logError(
         'No scene provided - Please add a <scene> element to your template or use the `useScene`',
       )
       return
     }
-    if (!gl.camera) {
+    if (!currentInstance.value.camera) {
       logError(
         'No camera provided - Please add a <camera> element to your template or use the `useCamera`',
       )
       return
     }
-    gl.renderer.render(toRaw(gl.scene) as Scene, gl.camera as Camera)
+    currentInstance.value.renderer.render(
+      toRaw(currentInstance.value.scene) as Scene,
+      currentInstance.value.camera as Camera,
+    )
   }
 
   const loop = () => {
@@ -213,9 +256,9 @@ export function useRenderer(config: RendererConfig) {
   }
 
   return {
-    gl,
     createRenderer,
     updateConfig,
     initRenderer,
+    gl: currentInstance.value,
   }
 }

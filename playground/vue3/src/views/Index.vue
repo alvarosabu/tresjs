@@ -12,12 +12,23 @@ setInterval(() => {
 </script>
 <template>
   <div class="page">
-    <Renderer alpha resize="window" orbit-controls :shadows="shadows">
+    <RenderCanvas
+      alpha
+      resize="window"
+      orbit-controls
+      :shadows="shadows"
+      background="gray"
+      :fog="{ color: 'gray', near: 1, far: 15 }"
+    >
+    </RenderCanvas>
+    <RenderCanvas alpha resize="window" orbit-controls :shadows="shadows">
+    </RenderCanvas>
+    <!-- <Renderer alpha resize="window" orbit-controls :shadows="shadows">
       <Scene
         background="gray"
         :fog="{ color: 'gray', near: 1, far: 15 }"
       ></Scene>
-    </Renderer>
+    </Renderer> -->
   </div>
 </template>
 

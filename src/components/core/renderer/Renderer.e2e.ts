@@ -1,14 +1,14 @@
 import { mount } from '@cypress/vue'
-import Renderer from './Renderer.vue'
+import Renderer from './RenderCanvas.vue'
 
-describe('Renderer', () => {
+describe('Render Canvas', () => {
   let cmp
 
   beforeEach(() => {
     cy.viewport(1200, 800)
   })
 
-  it('shouldrenders a canvas with the scene', () => {
+  it('should render a canvas with the scene', () => {
     cmp = mount(Renderer, {
       props: {},
     })

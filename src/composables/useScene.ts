@@ -1,10 +1,12 @@
-import { reactive, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { Color, Fog, Scene } from 'three'
-import gl from '/@/store/basegl'
 import { useLogger } from './useLogger'
+import useGL from '/@/store/basegl'
 
-export function useScene() {
+export function useScene(instanceId: string) {
   const { logWarning, logError } = useLogger()
+  const { gl } = useGL()
+  const currentInstance = computed(() => gl.instances[instanceId])
 
   const state = reactive<{ background: string | null; fog: Fog | null }>({
     background: null,
@@ -18,13 +20,13 @@ export function useScene() {
     background?: string | undefined
     fog?: Fog | undefined
   }) {
-    if (gl.scene) {
+    if (currentInstance.value.scene) {
       logWarning('Scene already created please destroy it first')
       return
     }
-    gl.scene = new Scene()
+    currentInstance.value.scene = new Scene()
     update({ background, fog })
-    return gl.scene
+    return currentInstance.value.scene
   }
 
   function update({
@@ -34,16 +36,16 @@ export function useScene() {
     background?: string | undefined | null
     fog?: Fog | undefined | null
   }) {
-    if (!gl.scene) {
+    if (!currentInstance.value.scene) {
       logError('Scene not created please create it first')
       return
     }
     if (background) {
-      gl.scene.background = new Color(background)
+      currentInstance.value.scene.background = new Color(background)
     }
     if (fog) {
       const { color, near = 1, far = 1000 } = fog
-      gl.scene.fog = new Fog(new Color(color), near, far)
+      currentInstance.value.scene.fog = new Fog(new Color(color), near, far)
     }
   }
 
@@ -51,7 +53,6 @@ export function useScene() {
 
   return {
     create,
-    scene: gl.scene,
     update,
   }
 }

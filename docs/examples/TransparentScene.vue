@@ -4,9 +4,7 @@ import 'virtual:windi.css'
 
 <template>
   <div class="example">
-    <Renderer alpha resize orbit-controls>
-      <Scene></Scene>
-    </Renderer>
+    <RenderCanvas alpha resize orbit-controls> </RenderCanvas>
   </div>
 </template>
 

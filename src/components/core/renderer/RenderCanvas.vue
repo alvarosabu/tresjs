@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import * as THREE from 'three'
-import { ShadowMapType } from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Fog, ShadowMapType } from 'three'
 import { ref, watch, watchEffect, PropType, onBeforeUnmount } from 'vue'
 import { useLogger } from '/@/composables/useLogger'
 import { useRenderer } from '/@/composables/useRenderer'
+import { useScene } from '/@/composables/useScene'
 import { SizeFlexibleParams } from '/@/types'
+import { v4 as uuidv4 } from 'uuid'
+import useGL from '/@/store/basegl'
 
 const props = defineProps({
   alpha: {
@@ -47,6 +49,12 @@ const props = defineProps({
     type: [Boolean] as PropType<boolean>,
     default: false,
   },
+  background: {
+    type: String,
+  },
+  fog: {
+    type: Object as PropType<Fog>,
+  },
 })
 
 const emit = defineEmits([
@@ -58,20 +66,32 @@ const emit = defineEmits([
 ])
 
 const renderer = ref(null)
+const instanceId = ref(uuidv4())
 
 const { logMessage } = useLogger()
 
-const { gl, createRenderer, updateConfig } = useRenderer({
-  alpha: props.alpha,
-  antialias: props.antialias,
-  resize: props.resize,
-  orbitControls: props.orbitControls,
-  shadows: props.shadows,
-  size: props.size,
-})
+const { gl, createRenderer, updateConfig } = useRenderer(
+  {
+    alpha: props.alpha,
+    antialias: props.antialias,
+    resize: props.resize,
+    orbitControls: props.orbitControls,
+    shadows: props.shadows,
+    size: props.size,
+  },
+  instanceId.value,
+)
+
+const { create, update } = useScene(instanceId.value)
 
 watchEffect(() => {
   updateConfig(props)
+  if (gl?.scene) {
+    update({
+      background: props.background,
+      fog: props.fog,
+    })
+  }
 })
 
 watch(renderer, initRenderer)
@@ -80,7 +100,11 @@ function initRenderer(canvas: HTMLCanvasElement | null) {
   if (canvas) {
     emit('init')
 
-    /* gl.scene = new THREE.Scene() */
+    create({
+      background: props.background,
+      fog: props.fog,
+    })
+
     gl.camera = new THREE.PerspectiveCamera(
       75,
       canvas.clientWidth / canvas.clientHeight,
@@ -122,12 +146,19 @@ onBeforeUnmount(() => {
     gl.renderer.dispose()
     gl.renderer.domElement.remove()
   }
+  gl.scene = null
 })
 
 if (import.meta.hot) {
   import.meta.hot.on('vite:beforeUpdate', data => {
     logMessage('render:vite:beforeUpdate', data)
     // perform custom update
+    gl.scene = null
+    create({
+      background: props.background,
+      fog: props.fog,
+    })
+
     if (gl.renderer) {
       gl.renderer.dispose()
       gl.renderer.domElement.remove()

@@ -4,12 +4,14 @@ import 'virtual:windi.css'
 
 <template>
   <div class="fog-example">
-    <Renderer alpha resize orbit-controls>
-      <Scene
-        background="gray"
-        :fog="{ color: 'gray', near: 1, far: 15 }"
-      ></Scene>
-    </Renderer>
+    <RenderCanvas
+      alpha
+      resize
+      orbit-controls
+      background="gray"
+      :fog="{ color: 'gray', near: 1, far: 15 }"
+    >
+    </RenderCanvas>
   </div>
 </template>
 
