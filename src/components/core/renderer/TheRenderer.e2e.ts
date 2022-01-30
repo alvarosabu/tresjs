@@ -1,5 +1,5 @@
 import { mount } from '@cypress/vue'
-import Renderer from './RenderCanvas.vue'
+import Renderer from './TheRenderer.vue'
 
 describe('Render Canvas', () => {
   let cmp

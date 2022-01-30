@@ -12,8 +12,9 @@ setInterval(() => {
 </script>
 <template>
   <div class="page">
-    <RenderCanvas alpha resize="window" orbit-controls :shadows="shadows">
-    </RenderCanvas>
+    <TheRenderer alpha resize="window" orbit-controls :shadows="shadows">
+      <TheCamera :position="[5, 5, 15]"></TheCamera>
+    </TheRenderer>
     <!-- <Renderer alpha resize="window" orbit-controls :shadows="shadows">
       <Scene
         background="gray"

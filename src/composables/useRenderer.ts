@@ -46,10 +46,11 @@ const rendererConfig = reactive<RendererConfig>({
 const instance: Ref<string> = ref(uuidv4())
 
 export function useRenderer(config: RendererConfig, instanceId?: string) {
+  const reqLoop: Ref<number | null> = ref(null)
   const { logError } = useLogger()
   const ctx = getCurrentInstance()
   if (instanceId) instance.value = instanceId
-  const { gl, addInstance, currentGL } = useGL(instanceId)
+  const { addInstance, currentGL } = useGL(instanceId)
 
   addInstance(instance.value, {
     renderer: null,
@@ -62,6 +63,12 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
   const aspectRatio = computed(() => width.value / height.value)
 
   watch(aspectRatio, updateRenderer)
+
+  watch(currentGL.value, instance => {
+    if (!reqLoop.value && instance.scene && instance.camera) {
+      initRenderer()
+    }
+  })
 
   // TODO: investigate why toggling shadowMaps doesnt work.
   /* watch(
@@ -177,8 +184,6 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
       const renderer = new WebGLRenderer(setup)
 
       currentGL.value.renderer = renderer
-      initRenderer()
-
       ctx?.emit('created')
     } catch (error) {
       logError(error as string)
@@ -211,19 +216,19 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
   function render() {
     if (!currentGL.value.renderer) {
       logError('Renderer not created')
-      return
+      cancelAnimationFrame(reqLoop.value as number)
     }
     if (!currentGL.value.scene) {
       logError(
         'No scene provided - Please add a <scene> element to your template or use the `useScene`',
       )
-      return
+      cancelAnimationFrame(reqLoop.value as number)
     }
     if (!currentGL.value.camera) {
       logError(
         'No camera provided - Please add a <camera> element to your template or use the `useCamera`',
       )
-      return
+      cancelAnimationFrame(reqLoop.value as number)
     }
     currentGL.value.renderer.render(
       toRaw(currentGL.value.scene) as Scene,
@@ -237,7 +242,7 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
     if (rendererConfig.orbitControls) {
       updateControls()
     }
-    requestAnimationFrame(loop)
+    reqLoop.value = requestAnimationFrame(loop)
   }
 
   return {

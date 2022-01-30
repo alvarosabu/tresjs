@@ -5,7 +5,7 @@ import { ref, watch, watchEffect, PropType, onBeforeUnmount } from 'vue'
 import { useLogger } from '/@/composables/useLogger'
 import { useRenderer } from '/@/composables/useRenderer'
 import { useScene } from '/@/composables/useScene'
-import { SizeFlexibleParams } from '/@/types'
+import { SizeFlexibleParams } from '../../../types'
 import { v4 as uuidv4 } from 'uuid'
 
 const props = defineProps({
@@ -70,6 +70,9 @@ const emit = defineEmits([
 
 const renderer = ref(null)
 const instanceId = ref(uuidv4())
+defineExpose({
+  instanceId,
+})
 
 const { logMessage } = useLogger()
 
@@ -109,14 +112,14 @@ function initRenderer(canvas: HTMLCanvasElement | null) {
       fog: props.fog,
     })
 
-    gl.camera = new THREE.PerspectiveCamera(
+    /*  gl.camera = new THREE.PerspectiveCamera(
       75,
       canvas.clientWidth / canvas.clientHeight,
       0.1,
-      1000,
+      2000,
     )
     gl.camera.position.set(5, 5, 15)
-    gl.scene?.add(gl.camera)
+    gl.scene?.add(gl.camera) */
 
     gl.scene?.add(new THREE.AmbientLight(0xffffff, 0.5))
     const sun = new THREE.DirectionalLight(0xffffff, 0.8)
