@@ -8,6 +8,7 @@ specifiers:
   '@semantic-release/changelog': ^6.0.1
   '@semantic-release/git': ^10.0.1
   '@types/three': ^0.136.1
+  '@types/uuid': ^8.3.4
   '@vitejs/plugin-vue': ^2.0.0
   '@vitest/ui': ^0.2.4
   '@vueuse/core': ^7.5.4
@@ -21,6 +22,7 @@ specifiers:
   semantic-release: ^19.0.2
   three: ^0.136.0
   typescript: ^4.4.4
+  uuid: ^8.3.2
   vite: ^2.7.2
   vite-plugin-windicss: ^1.6.3
   vitepress: ^0.21.6
@@ -32,6 +34,7 @@ specifiers:
 
 dependencies:
   three: 0.136.0
+  uuid: 8.3.2
   vue: 3.2.29
 
 devDependencies:
@@ -42,6 +45,7 @@ devDependencies:
   '@semantic-release/changelog': 6.0.1_semantic-release@19.0.2
   '@semantic-release/git': 10.0.1_semantic-release@19.0.2
   '@types/three': 0.136.1
+  '@types/uuid': 8.3.4
   '@vitejs/plugin-vue': 2.1.0_vite@2.7.13+vue@3.2.29
   '@vitest/ui': 0.2.4
   '@vueuse/core': 7.5.4_vue@3.2.29
@@ -1374,6 +1378,10 @@ packages:
 
   /@types/throttle-debounce/2.1.0:
     resolution: {integrity: sha512-5eQEtSCoESnh2FsiLTxE121IiE60hnMqcb435fShf4bpLRjEu1Eoekht23y6zXS9Ts3l+Szu3TARnTsA0GkOkQ==}
+    dev: true
+
+  /@types/uuid/8.3.4:
+    resolution: {integrity: sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==}
     dev: true
 
   /@types/yargs-parser/20.2.1:
@@ -8056,7 +8064,6 @@ packages:
   /uuid/8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
-    dev: true
 
   /v8-compile-cache/2.3.0:
     resolution: {integrity: sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA==}
