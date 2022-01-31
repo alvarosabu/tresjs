@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as THREE from 'three'
 
-import { useRenderer, useScene } from '../../dist/tres.es'
+import { useRenderer, useScene, useCamera, CameraType } from '/@/'
 import { onMounted, ref } from 'vue'
 
 const renderer = ref(null)
@@ -10,19 +10,19 @@ const { gl, createRenderer } = useRenderer({
   orbitControls: true,
 })
 
-const { create, update } = useScene()
+const { create } = useScene()
+const { createCamera } = useCamera()
 
 onMounted(() => {
   create({}) // Create scene
   if (renderer.value) {
-    gl.camera = new THREE.PerspectiveCamera(
-      75,
-      renderer.value.clientWidth / renderer.value.clientHeight,
-      0.1,
-      1000,
-    )
-    gl.camera.position.set(5, 5, 15)
-    gl.scene?.add(gl.camera)
+    createCamera(CameraType.Perspective, {
+      fov: 75,
+      aspect: renderer.value.clientWidth / renderer.value.clientHeight,
+      near: 0.1,
+      far: 1000,
+      position: [5, 5, 15],
+    })
     gl.scene?.add(new THREE.AmbientLight(0xffffff, 0.5))
 
     const sphere = new THREE.Mesh(
