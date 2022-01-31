@@ -35,9 +35,9 @@ const props = defineProps({
 })
 const ctx = getCurrentInstance()
 const { createCamera, updateCamera } = useCamera(
-  ctx.parent.exposed.instanceId.value,
+  ctx?.parent?.exposed?.instanceId.value,
 )
-const { currentGL } = useGL(ctx.parent.exposed.instanceId.value)
+const { currentGL } = useGL(ctx?.parent?.exposed?.instanceId.value)
 
 watchEffect(() => {
   updateCamera(props)

@@ -1,5 +1,5 @@
 import DefaultTheme from 'vitepress/theme'
-import { TresJSPlugin } from '../../../dist/tres.es'
+import { TresJSPlugin } from '/@/plugin'
 
 const theme = {
   ...DefaultTheme,

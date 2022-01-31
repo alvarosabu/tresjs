@@ -11,6 +11,7 @@ import 'virtual:windi.css'
       background="gray"
       :fog="{ color: 'gray', near: 1, far: 15 }"
     >
+      <TheCamera :position="[5, 5, 15]"></TheCamera>
     </TheRenderer>
   </div>
 </template>

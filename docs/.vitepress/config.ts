@@ -19,6 +19,7 @@ export default defineConfigWithTheme({
           link: '/guide/core/',
           children: [
             { text: 'Renderer', link: '/guide/core/renderer' },
+            { text: 'Camera', link: '/guide/core/camera' },
             {
               text: 'Composables',
               link: '/guide/core/composables',

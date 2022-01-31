@@ -4,15 +4,14 @@ import 'virtual:windi.css'
 
 <template>
   <div class="example">
-    <TheRenderer alpha resize orbit-controls>
-      <TheCamera :position="[5, 5, 15]"></TheCamera>
+    <TheRenderer resize orbit-controls>
+      <TheCamera :position="[5, 5, 15]" :fov="75"></TheCamera>
     </TheRenderer>
   </div>
 </template>
 
 <style>
 .example {
-  background: url('/png-transparent-bg.png');
   border-radius: 5px;
   aspect-ratio: 16 / 9;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
