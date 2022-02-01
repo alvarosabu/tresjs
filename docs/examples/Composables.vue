@@ -10,11 +10,11 @@ const { gl, createRenderer } = useRenderer({
   orbitControls: true,
 })
 
-const { create } = useScene()
+const { createScene } = useScene()
 const { createCamera } = useCamera()
 
 onMounted(() => {
-  create({}) // Create scene
+  createScene() // Create scene
   if (renderer.value) {
     createCamera(CameraType.Perspective, {
       fov: 75,

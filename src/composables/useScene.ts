@@ -12,23 +12,18 @@ export function useScene(instanceId?: string) {
     fog: null,
   })
 
-  function create({
-    background,
-    fog,
-  }: {
+  function createScene(config?: {
     background?: string | undefined
     fog?: Fog | undefined
   }) {
-    if (currentGL.value.scene) {
-      logWarning('Scene already created please destroy it first')
-      return
-    }
+    Object.assign(state, config)
+
     currentGL.value.scene = new Scene()
-    update({ background, fog })
+    updateScene(state)
     return currentGL.value.scene
   }
 
-  function update({
+  function updateScene({
     background,
     fog,
   }: {
@@ -48,10 +43,10 @@ export function useScene(instanceId?: string) {
     }
   }
 
-  watch(state, update)
+  watch(state, updateScene)
 
   return {
-    create,
-    update,
+    createScene,
+    updateScene,
   }
 }

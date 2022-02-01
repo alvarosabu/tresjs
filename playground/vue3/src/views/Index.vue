@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const shadows = ref(true)
+const fov = ref(45)
 
-/* function onUpdateRender(e) {
+function onUpdateRender(e) {
   console.log('onUpdateRender', e)
-} */
+}
 setInterval(() => {
-  shadows.value = !shadows.value
-}, 8000)
+  /*   fov.value += 10 */
+}, 1000)
 </script>
 <template>
   <div class="page">
-    <TheRenderer alpha resize="window" orbit-controls :shadows="shadows">
-      <TheCamera :position="[5, 5, 15]"></TheCamera>
+    <TheRenderer alpha resize="window" orbit-controls>
+      <TheCamera :position="[5, 5, 15]" :fov="fov"></TheCamera>
     </TheRenderer>
     <!-- <Renderer alpha resize="window" orbit-controls :shadows="shadows">
       <Scene

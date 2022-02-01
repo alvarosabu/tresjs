@@ -89,12 +89,12 @@ const { gl, createRenderer, updateConfig } = useRenderer(
   instanceId.value,
 )
 
-const { create, update } = useScene(instanceId.value)
+const { createScene, updateScene } = useScene(instanceId.value)
 
 watchEffect(() => {
   updateConfig(props)
   if (gl?.scene) {
-    update({
+    updateScene({
       background: props.background,
       fog: props.fog,
     })
@@ -107,7 +107,7 @@ function initRenderer(canvas: HTMLCanvasElement | null) {
   if (canvas) {
     emit('init')
 
-    create({
+    createScene({
       background: props.background,
       fog: props.fog,
     })
@@ -161,7 +161,7 @@ if (import.meta.hot) {
     logMessage('render:vite:beforeUpdate', data)
     // perform custom update
     gl.scene = null
-    create({
+    createScene({
       background: props.background,
       fog: props.fog,
     })

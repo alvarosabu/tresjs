@@ -51,6 +51,7 @@ export function useCamera(instanceId?: string) {
         updateCameraRenderer(value)
       }
     },
+    { deep: true },
   )
 
   function createPerspectiveCamera(config: CameraConfig) {
@@ -67,16 +68,19 @@ export function useCamera(instanceId?: string) {
     return currentGL.value.camera
   }
 
-  function createCamera(cameraType: CameraType | string, config: CameraConfig) {
+  function createCamera(
+    cameraType?: CameraType | string,
+    config?: CameraConfig,
+  ) {
     Object.assign(state, config)
-    type.value = cameraType
+    if (cameraType) type.value = cameraType
 
     if (cameraType === CameraType.Orthographic) {
-      createOrthographicCamera(config)
+      createOrthographicCamera(state)
     } else {
-      createPerspectiveCamera(config)
+      createPerspectiveCamera(state)
     }
-    updateCameraRenderer(config)
+    updateCameraRenderer(state)
 
     return currentGL.value.camera
   }
@@ -123,6 +127,8 @@ export function useCamera(instanceId?: string) {
       }
       if (lookAt)
         currentGL.value.camera.lookAt(normalizeVectorFlexibleParam(lookAt))
+
+      currentGL.value.camera.updateProjectionMatrix()
     }
   }
 

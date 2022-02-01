@@ -29,7 +29,7 @@ export interface RendererConfig extends WebGLRendererParameters {
   resize?: boolean | string
   size?: number[] | { width: number; height: number }
   context?: any
-  physicallyCorrectLights: boolean
+  physicallyCorrectLights?: boolean
 }
 
 const rendererConfig = reactive<RendererConfig>({
@@ -197,9 +197,9 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
       if (rendererConfig.orbitControls) {
         toggleOrbitControls(rendererConfig.orbitControls)
       }
-      if (currentGL.value.renderer)
+      if (currentGL.value.renderer?.physicallyCorrectLights)
         currentGL.value.renderer.physicallyCorrectLights =
-          rendererConfig.physicallyCorrectLights
+          rendererConfig.physicallyCorrectLights || false
     }
 
     render()
@@ -230,7 +230,7 @@ export function useRenderer(config: RendererConfig, instanceId?: string) {
       )
       cancelAnimationFrame(reqLoop.value as number)
     }
-    currentGL.value.renderer.render(
+    currentGL.value.renderer?.render(
       toRaw(currentGL.value.scene) as Scene,
       currentGL.value.camera as Camera,
     )
